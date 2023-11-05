@@ -1,0 +1,114 @@
+ 
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class FeeInstallment {
+  String name;
+  int amount;
+  bool isPaid;
+  bool check;
+
+  FeeInstallment({
+    required this.name,
+    required this.amount,
+    this.isPaid = false,
+    this.check = false,
+  });
+}
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<FeeInstallment> installments = [
+    FeeInstallment(name: 'Installment 1', amount: 100, check: false),
+    FeeInstallment(name: 'Installment 2', amount: 150, check: false),
+    FeeInstallment(name: 'Installment 3', amount: 200, check: false),
+    FeeInstallment(name: 'Installment 4', amount: 1000, isPaid: true),
+    FeeInstallment(name: 'Installment 5', amount: 150, isPaid: true),
+    FeeInstallment(name: 'Installment 6', amount: 200, check: false),
+    FeeInstallment(name: 'Installment 7', amount: 100, check: false),
+  ];
+  List<PayChecks> checks = [];
+  @override
+  Widget build(BuildContext context) {
+    installments.sort((a, b) => a.isPaid == b.isPaid ? 0 : a.isPaid ? -1 : 1);
+    
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Fee Installments'),
+        ),
+        body: ListView.builder(
+          itemCount: installments.length,
+          itemBuilder: (context, i) {
+            final installment = installments[i];
+            return ListTile(
+              title: Text('${installment.name} - \$${installment.amount}'),
+              leading: installment.isPaid
+                  ? Checkbox(
+                      activeColor: Colors.grey,
+                      value: installment.isPaid,
+                      onChanged: (newValue) {},
+                    )
+                  : Checkbox(
+                      value: installment.check,
+                      onChanged: (newValue) {
+                        setState(() {
+                          installment.check = newValue ?? false;
+                                 if (newValue == false && i < installments.length - 1) {
+                            for (int j = i + 1; j < installments.length; j++) {
+                              if (installments[j].check) {
+                                print("Uncheck ${[j]} next.");
+                                installments[j-1].check=true;
+                                return;
+                              }
+                            }
+                          }
+
+                           
+                        if (newValue == true) {
+                            // Check if the same value already exists in checks
+                            if (!checks.any((element) => element.indexcheck == i)) {
+                              checks.add(PayChecks(
+                                  indexcheck: i,
+                                  amount: installments.elementAt(i).amount));
+                              print(checks.toString());
+                             }
+                          } else {
+                            checks.removeWhere((element) => element.indexcheck == i);
+                            print(checks.toString());
+                          }
+                        });
+                      },
+                    ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void showToast(String message) {
+    // Replace this with your preferred toast library or implementation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+}
+
+class PayChecks {
+  int? indexcheck;
+  int? amount;
+
+  PayChecks({required this.indexcheck, required this.amount});
+  @override
+  String toString() {
+    return 'PayChecks(indexcheck: $indexcheck, amount: $amount)';
+  }
+}
